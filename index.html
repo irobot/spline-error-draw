@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <script src="node_modules/browser-es-module-loader/dist/babel-browser-build.js"></script>
+  <script src="node_modules/browser-es-module-loader/dist/browser-es-module-loader.js"></script>
+  <script src="lodash.core.js"></script>
+  <script type="module" src="main.js"></script>
+  <style>
+    .error-monitor {
+      user-select: none;
+      font-family: monospace;
+      color: #aaa;
+    }
+    .error-label {
+      font-weight: bold;
+      color: #666;
+    }
+    body {
+      background: #333;
+    }
+    .red { background: rgba(218, 41, 41, 0.7); }
+    .blue { background: rgba(117, 197, 255, 0.69);}
+    .yellow { background: rgba(200, 200, 0, 1);}
+    .black { background: rgb(19, 19, 19);}
+    .colors div {
+      display: inline-block;
+      width: 1rem;
+      height: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="error-monitor">
+    <div>
+      <div class="error-label">spline 2 - spline1</div>
+      <span id="errorMonitor1">0</span>
+    </div>
+    <div>
+      <div class="error-label">spline 1 - spline2</div>
+      <span id="errorMonitor2">0</span>
+    </div>
+  </div>
+  <div class="colors">
+    <div class="red"></div>
+    <div class="blue"></div>
+    <div class="yellow"></div>
+    <div class="black"></div>
+    <button id="btnSubD10">Subdivision 10</button>
+    <button id="btnSubD100">Subdivision 100</button>
+  </div>
+  <canvas id="canvas" width="1200" height="850"></canvas>
+</body>
+</html>
