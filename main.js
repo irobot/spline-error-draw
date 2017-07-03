@@ -13,7 +13,7 @@ const points1 = [
   [0.365, -0.405],
   [0.575, -0.365],
   [0.695, -0.305],
-  [0.98, -0.045]
+  [0.98, -0.045],
 ];
 
 const points2 = [
@@ -21,7 +21,7 @@ const points2 = [
   [-0.5,  0.5],
   [ 0.0,  0.0],
   [ 0.5, -0.5],
-  [ 1.0,  0.0]
+  [ 1.0,  0.0],
 ];
 
 const interpolated1 = [],
@@ -45,13 +45,15 @@ const VIEW_SCALE = 200;
 const draggingRadius = 5;
 const SUBDIVISION_STEPS = 10;
 let currentSubdivisionSteps = SUBDIVISION_STEPS;
+let showBlueControlPoints = false;
+let showRedControlPoints = true;
 
-const transform = ({x, y}) => ({
+const worldToView = ({x, y}) => ({
   x: x * VIEW_SCALE + centerX,
   y: y * VIEW_SCALE + centerY
 });
 
-const untransform = ({x, y}) => ({
+const viewToWorld = ({x, y}) => ({
   x: (x - centerX) / VIEW_SCALE,
   y: (y - centerX) / VIEW_SCALE
 });
@@ -65,13 +67,15 @@ const colors = {
 
 const setAlpha = ({r, g, b}, alpha) => ({r, g, b, a: alpha});
 
-const drawPoint = (point) => drawCircle(point, 6, setAlpha(colors.red, .3));
+const drawPoint = (point, color) => drawCircle(point, 6, setAlpha(color, .3));
+const drawPoints = (points, color) =>
+  points.forEach(([x, y, z]) => drawPoint(worldToView({x, y, z}), color));
 
 const calcPoints = (points, delta, degree, interpolated) => {
   interpolated.length = 0;
   for (let t = 0; t < 1; t += delta) {
     const [x, y, z] = interpolate(t, degree, points);
-    interpolated.push(transform({x, y, z}));
+    interpolated.push(worldToView({x, y, z}));
   }
   return interpolated;
 };
@@ -157,10 +161,12 @@ const drawCanvas = () => {
 
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvasSizeX, canvasSizeY);
-  points1.forEach(point => {
-    const [x, y, z] = point;
-    drawPoint(transform({x, y, z}))
-  });
+  if (showRedControlPoints) {
+    drawPoints(points1, colors.red);
+  }
+  if (showBlueControlPoints) {
+    drawPoints(points2, colors.blue);
+  }
 
   const delta = 1 / currentSubdivisionSteps;
   calcPoints(points1, delta, 2, interpolated1);
@@ -206,7 +212,7 @@ const handleMouseMove = (e, canvas) => {
   const ep = makePoint(e.clientX, e.clientY);
   const canvasPos = add(corg, coff);
   const cursor = sub(ep, canvasPos);
-  const point = untransform(cursor);
+  const point = viewToWorld(cursor);
   const radius = draggingRadius / VIEW_SCALE;
   const hoveredIndex = points1.findIndex(pi => distance(makePointND(pi), point) < radius);
   handleHoveringOverPoint(hoveredIndex);
@@ -224,6 +230,16 @@ const setSubdivisionCount = subdivisions => {
   drawCanvas();
 };
 
+const toggleBlueControlPoints = () => {
+  showBlueControlPoints = !showBlueControlPoints;
+  drawCanvas();
+};
+
+const toggleRedControlPoints = () => {
+  showRedControlPoints = !showRedControlPoints;
+  drawCanvas();
+};
+
 function start() {
 
   const canvas = document.getElementById('canvas');
@@ -236,6 +252,8 @@ function start() {
   document.addEventListener('mouseup', e => handleMouseUp(e, canvas));
   btnSubD10.addEventListener('click', () => setSubdivisionCount(10));
   btnSubD100.addEventListener('click', () => setSubdivisionCount(100));
+  btnToggleBlueCtl.addEventListener('click', () => toggleBlueControlPoints());
+  btnToggleRedCtl.addEventListener('click', () => toggleRedControlPoints());
   drawCanvas();
 }
 
